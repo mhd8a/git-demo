@@ -10,7 +10,10 @@ jobs:
     permissions:
       issues: write
     steps:
-      - uses: actions/github-script@v6
+      - name: Checking out
+        uses: actions/checkout@master
+      - name: invoking github script plugin
+        uses: actions/github-script@v6
         with:
           script: |
             github.rest.issues.addLabels({
