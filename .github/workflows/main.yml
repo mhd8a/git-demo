@@ -45,6 +45,7 @@ jobs:
             # Stage, commit, and push the changes
             git add .
             git commit -m "Copy $source_file from source repo"
+            git origin -u git@github.com:mh.git
             git push origin main  # Adjust the branch name if necessary
 
             echo "File $source_file copied to $repo."
