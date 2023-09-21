@@ -15,7 +15,7 @@ jobs:
 
     - name: List files in source repo
       run: |
-        source_file="path/to/source/new_year.cpp"  # Specify the source file path
+        source_file="/mhd8a/git-demo/new_year.cpp"  # Specify the source file path
         if [ -f "$source_file" ]; then
           echo "Source file $source_file exists."
         else
