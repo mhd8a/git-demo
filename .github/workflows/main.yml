@@ -1,61 +1,55 @@
-name: Check and Copy File to Multiple Repositories
+name: Copy File to Target Repositories
 
 on:
   workflow_dispatch:  # You can trigger this workflow manually
-  schedule:
-    - cron: '0 0 * * *'  # Run the workflow daily (adjust the schedule as needed)
 
 jobs:
-  check_and_copy_file:
+  copy_file:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout source repository
+    - name: Checkout source repo
       uses: actions/checkout@v2
       with:
         repository: mhd8a/git-demo  # Replace with the source repository information
 
-    - name: Check if file exists
-      id: check_file
+    - name: List files in source repo
       run: |
-        source_file="git-demo/new_year.cpp"  # Specify the path to the source file
-
-        # Check if the file exists in the source repository
+        source_file="new_year.cpp"  # Specify the source file path
         if [ -f "$source_file" ]; then
-          echo "File exists in the source repository"
-          echo "::set-output name=file_exists::true"
+          echo "Source file $source_file exists."
         else
-          echo "File does not exist in the source repository"
-          echo "::set-output name=file_exists::false"
+          echo "Source file $source_file does not exist."
+          exit 1
         fi
 
-    - name: Copy file to other repositories
-      if: steps.check_file.outputs.file_exists == 'false'
+    - name: Check and copy to target repos
       run: |
-        # Define an array of target repositories
-        target_repos=("mhd8a/demo2" "mhd8a/demo3")
+        source_file="new_year.cpp"  # Specify the source file path
+        target_repos=("mhd8a/Demo2" "mhd8a/Demo3")  # Add target repositories
 
-        # Loop through target repositories and copy the file
         for repo in "${target_repos[@]}"; do
-          echo "Copying file to $repo"
+          echo "Checking file in $repo"
           git config user.email "github-actions@github.com"
           git config user.name "GitHub Actions"
           git clone https://github.com/$repo.git
           cd $(basename $repo)
 
-          # Copy the file from the source repository to the target repository
-          cp ../$source_file .
+          # Check if the file exists in the target repository
+          if [ -f "$source_file" ]; then
+            echo "File $source_file already exists in $repo."
+          else
+            echo "File $source_file does not exist in $repo. Copying..."
+            cp ../$source_file .
 
-          # Stage, commit, and push the changes
-          git add .
-          git commit -m "Copy $source_file from source repo"
-          git push origin main  # Adjust the branch name if necessary
+            # Stage, commit, and push the changes
+            git add .
+            git commit -m "Copy $source_file from source repo"
+            git push origin main  # Adjust the branch name if necessary
+
+            echo "File $source_file copied to $repo."
+          fi
 
           cd ..
           rm -rf $(basename $repo)
         done
-
-    - name: Notify if file exists
-      if: steps.check_file.outputs.file_exists == 'true'
-      run: |
-        echo "File exists in the source repository. No copying needed."
