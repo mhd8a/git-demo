@@ -31,7 +31,7 @@ jobs:
         for repo in "${target_repos[@]}"; do
           echo "Checking file in $repo"
           git config --global user.email "mohammedabdullah48@hotmail.com"
-          git config --global user.name "Mohammed"
+          git config --global user.name "mhd8a"
           git clone https://github.com/$repo.git
           cd $(basename $repo)
 
