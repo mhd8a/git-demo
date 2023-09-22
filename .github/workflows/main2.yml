@@ -43,11 +43,11 @@ jobs:
             # Get the source file's content
             source_file_content=$(base64 -w 0 "$source_file")
 
-            # Create a JSON request body
-            request_body=$(jq -n --arg message "Copy $source_file" --arg content "$source_file_content" --arg branch "main" '{"message": $message, "content": $content, "branch": $branch}')
+           # Create a JSON request body and save it to a file  
+            echo "{\"message\":\"Copy $source_file\",\"content\":\"$source_file_content\",\"branch\":\"main\"}" > request_body.json
 
-            # Use the GitHub API to create or update the file
-            curl -X PUT -H "Authorization: token $pat_token" -d "$request_body" "https://api.github.com/repos/$repo/contents/$source_file"
+            # Use the GitHub API to create or update the file using the data from the file
+            curl -X PUT -H "Authorization: token $pat_token" -d @request_body.json "https://api.github.com/repos/$repo/contents/$source_file"
 
             echo "File $source_file copied to $repo."
           fi
