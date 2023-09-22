@@ -27,7 +27,7 @@ jobs:
       run: |
         source_file="new_year.cpp"  # Specify the source file path
         target_repos=("mhd8a/Demo2" "mhd8a/Demo3")  # Add target repositories
-        pat_token="${{ secrets.Token_API_Acces }}"  # Replace with your PAT secret
+        pat_token="${{ secrets.GITHUB_TOKEN}}"  # Replace with your PAT secret
 
         for repo in "${target_repos[@]}"; do
           echo "Checking file in $repo"
@@ -53,4 +53,4 @@ jobs:
           fi
         done
       env:
-        Token_API_Acces: ${{ secrets.Token_API_Acces }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
