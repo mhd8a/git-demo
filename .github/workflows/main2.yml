@@ -25,11 +25,11 @@ jobs:
 
         for repo in "${target_repos[@]}"; do
           echo "Checking file in $repo"
-          response=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/$repo/contents/$source_file")
+          response=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: Bearer ${{ secrets.API_PAT }}" "https://api.github.com/repos/$repo/contents/$source_file")
 
           if [[ $response == "404" ]]; then
             echo "File not found in $repo, pushing..."
-            curl -X PUT -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -d '{
+            curl -X PUT -H "Authorization: Bearer ${{ secrets.API_PAT }}" -d '{
               "message": "Add missing file",
               "content": "'"$(base64 -w0 $source_file)"'",
               "branch": "main"
@@ -39,4 +39,4 @@ jobs:
           fi
         done
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        API_PAT: ${{ secrets.API_PAT }}
