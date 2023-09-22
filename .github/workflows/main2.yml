@@ -1,0 +1,42 @@
+name: Check-Push File to Target Repositories Version2
+
+on:
+  workflow_dispatch:  # Trigger the workflow manually
+  push:
+    branches:
+      - main  # Adjust the branch name as needed
+
+jobs:
+  check_and_push:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout source repo
+      uses: actions/checkout@v2
+      with:
+        repository: mhd8a/git-demo
+        ref: main  # Adjust the branch name as needed
+
+    - name: Check file existence
+      id: check_file
+      run: |
+        source_file="new_year.cpp"  # Specify the path to the source file
+        target_repos=("mhd8a/Demo2" "mhd8a/Demo3")
+
+        for repo in "${target_repos[@]}"; do
+          echo "Checking file in $repo"
+          response=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/$repo/contents/$source_file")
+
+          if [[ $response == "404" ]]; then
+            echo "File not found in $repo, pushing..."
+            curl -X PUT -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -d '{
+              "message": "Add missing file",
+              "content": "'"$(base64 -w0 $source_file)"'",
+              "branch": "main"
+            }' "https://api.github.com/repos/$repo/contents/$source_file"
+          else
+            echo "File found in $repo"
+          fi
+        done
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
