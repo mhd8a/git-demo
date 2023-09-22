@@ -1,42 +1,56 @@
-name: Check-Push File to Target Repositories Version2
+name: Copy File to Target Repositories
 
 on:
-  workflow_dispatch:  # Trigger the workflow manually
-  push:
-    branches:
-      - main  # Adjust the branch name as needed
+  workflow_dispatch:  # You can trigger this workflow manually
 
 jobs:
-  check_and_push:
+  copy_file:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout source repo
       uses: actions/checkout@v2
       with:
-        repository: mhd8a/git-demo
-        ref: main  # Adjust the branch name as needed
+        repository: mhd8a/git-demo  # Replace with the source repository information
 
-    - name: Check file existence
-      id: check_file
+    - name: List files in source repo
       run: |
-        source_file="new_year.cpp"  # Specify the path to the source file
-        target_repos=("mhd8a/Demo2" "mhd8a/Demo3")
+        source_file="new_year.cpp"  # Specify the source file path
+        if [ -f "$source_file" ]; then
+          echo "Source file $source_file exists."
+        else
+          echo "Source file $source_file does not exist."
+          exit 1
+        fi
+
+    - name: Check and copy to target repos
+      run: |
+        source_file="new_year.cpp"  # Specify the source file path
+        target_repos=("mhd8a/Demo2" "mhd8a/Demo3")  # Add target repositories
+        pat_token="${{ secrets.Token_API_Acces }}"  # Replace with your PAT secret
 
         for repo in "${target_repos[@]}"; do
           echo "Checking file in $repo"
-          response=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: Bearer ${{ secrets.API_PAT }}" "https://api.github.com/repos/$repo/contents/$source_file")
 
-          if [[ $response == "404" ]]; then
-            echo "File not found in $repo, pushing..."
-            curl -X PUT -H "Authorization: Bearer ${{ secrets.API_PAT }}" -d '{
-              "message": "Add missing file",
-              "content": "'"$(base64 -w0 $source_file)"'",
-              "branch": "main"
-            }' "https://api.github.com/repos/$repo/contents/$source_file"
+          # Check if the file exists in the target repository using the GitHub API
+          response=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: token $pat_token" "https://api.github.com/repos/$repo/contents/$source_file")
+
+          if [ "$response" -eq "200" ]; then
+            echo "File $source_file already exists in $repo."
           else
-            echo "File found in $repo"
+            echo "File $source_file does not exist in $repo. Copying..."
+
+            # Get the source file's content
+            source_file_content=$(base64 -w 0 "$source_file")
+
+            # Create a JSON request body
+            request_body=$(jq -n --arg message "Copy $source_file" --arg content "$source_file_content" --arg branch "main" '{"message": $message, "content": $content, "branch": $branch}')
+
+            # Use the GitHub API to create or update the file
+            curl -X PUT -H "Authorization: token $pat_token" -d "$request_body" "https://api.github.com/repos/$repo/contents/$source_file"
+
+            echo "File $source_file copied to $repo."
           fi
         done
       env:
-        API_PAT: ${{ secrets.API_PAT }}
+        Token_API_Acces: ${{ secrets.Token_API_Acces }}
