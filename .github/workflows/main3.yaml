@@ -15,10 +15,10 @@ jobs:
          git config --global credential.helper store
          git config --global user.email "mohammedabdullah48@hotmail.com
          git config --global user.name "mhd8a"
-         echo "https://${{ secrets.GITHUB_PAT }}@github.com" > remote_url
+         echo "https://${{ secrets.Access_PAT }}@github.com" > remote_url
          git remote set-url origin "$(cat remote_url)"
        env:
-         GITHUB_PAT: ${{ secrets.GITHUB_PAT }}
+         Access_PAT: ${{ secrets.Access_PAT }}
     - name: Set Git identity
       run: |
         git config --global user.email "mohammedabdullah48@hotmail.com"
