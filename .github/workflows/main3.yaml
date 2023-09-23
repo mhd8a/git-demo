@@ -35,11 +35,12 @@ jobs:
           # Read the source file contents
           file_contents="$(base64 -w0 "$source_file")"
 
-          # Create a new file in the target repository using GitHub API
-          response=$(curl -s -X PUT -H "Authorization: Bearer ${{ secrets.Access_PAT }}" -d '{
-            "message": "Add missing file",
-            "content": "'"$file_contents"'"
-          }' "https://api.github.com/repos/$repo/contents/path/to/source/file.ext")
+         # Create a new file in the target repository using GitHub API
+          response=$(curl -s -X PUT -H "Authorization: Bearer ${{ secrets.PAT }}" \
+            -d '{
+              "message": "Add missing file",
+              "content": "'"$file_contents"'"
+            }' "https://api.github.com/repos/$repo/contents/path/to/source/file.ext")
 
           echo "File $source_file copied to $repo."
         done
