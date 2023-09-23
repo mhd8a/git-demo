@@ -41,8 +41,12 @@ jobs:
           else
             echo "File $source_file does not exist in $repo. Copying..."
             
-            # Create a new file in the target repository using the GitHub API
-            curl -X PUT -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -d "{\"message\": \"Copy $source_file\", \"content\": \"$(base64 -w0 $source_file)\", \"branch\": \"main\"}" "https://api.github.com/repos/$repo/contents/$source_file"
+           # Read the source file contents and construct the API request dynamically
+            file_contents="$(base64 -w0 "$source_file")"
+            json_data="{\"message\": \"Copy $source_file\", \"content\": \"$file_contents\", \"branch\": \"main\"}"
+
+            # Use curl to create a new file in the target repository using the GitHub API
+            curl -X PUT -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -d "$json_data" "https://api.github.com/repos/$repo/contents/$source_file"
             
             echo "File $source_file copied to $repo."
           fi
