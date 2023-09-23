@@ -27,7 +27,7 @@ jobs:
       run: |
         source_file="new_year.cpp"  # Specify the source file path
         target_repos=("mhd8a/Demo2" "mhd8a/Demo3")  # Add target repositories
-        pat_token="${{ secrets.Access_PAT }}"  # Replace with your PAT secret
+        pat_token="${{ secrets.ACCESS_PAT }}"  # Replace with your PAT secret
 
         for repo in "${target_repos[@]}"; do
           echo "Checking file in $repo"
@@ -53,4 +53,4 @@ jobs:
           fi
         done
       env:
-        Access_PAT: ${{ secrets.Access_PAT }}
+        ACCESS_PAT: ${{ secrets.ACCESS_PAT }}
