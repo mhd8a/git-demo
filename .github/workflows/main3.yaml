@@ -11,7 +11,7 @@ jobs:
     - name: Checkout source repo
       uses: actions/checkout@v2
       with:
-        repository: mhd8a/git-demo
+        repository: your-source-repo-owner/your-source-repo-name
         ref: main  # Replace with the branch name as needed
 
     - name: List files in source repo
@@ -24,37 +24,22 @@ jobs:
           exit 1
         fi
 
-    - name: Check and copy to target repos
+    - name: Copy file to target repositories
       run: |
         source_file="new_year.cpp"  # Specify the source file path
         target_repos=("mhd8a/Demo2" "mhd8a/Demo3")  # Add target repositories
 
         for repo in "${target_repos[@]}"; do
-          echo "Checking file in $repo"
-          response=$(curl -s -X POST -H "Authorization: Bearer ${{ secrets.Access_PAT }}" -d '{
-            "query": "query ($owner: String!, $repo: String!, $path: String!) { repository(owner: $owner, name: $repo) { object(expression: \"main:$path\") { ... on Blob { oid } } } }",
-            "variables": {
-              "owner": "target-repo-owner",
-              "repo": "target-repo1",
-              "path": "path/to/source/file.ext"
-            }
-          }' "https://api.github.com/graphql" | jq -r '.data.repository.object.oid')
+          echo "Copying file to $repo"
 
-          if [ -n "$response" ]; then
-            echo "File $source_file already exists in $repo."
-          else
-            echo "File $source_file does not exist in $repo. Copying..."
+          # Read the source file contents
+          file_contents="$(base64 -w0 "$source_file")"
 
-            # Read the source file contents
-            file_contents="$(base64 -w0 "$source_file")"
+          # Create a new file in the target repository using GitHub API
+          response=$(curl -s -X PUT -H "Authorization: Bearer ${{ secrets.Access_PAT }}" -d '{
+            "message": "Add missing file",
+            "content": "'"$file_contents"'"
+          }' "https://api.github.com/repos/$repo/contents/path/to/source/file.ext")
 
-            # Create a new file in the target repository using GitHub API
-            response=$(curl -s -X POST -H "Authorization: Bearer ${{ secrets.Access_PAT }}" -d '{
-              "message": "Add missing file",
-              "content": "'"$file_contents"'",
-              "branch": "main"
-            }' "https://api.github.com/repos/$repo/contents/path/to/source/file.ext")
-
-            echo "File $source_file copied to $repo."
-          fi
+          echo "File $source_file copied to $repo."
         done
