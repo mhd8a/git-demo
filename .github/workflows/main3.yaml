@@ -13,7 +13,7 @@ jobs:
       - name: Set up Git with PAT
         run: |
          git config --global credential.helper store
-         git config --global user.email "mohammedabdullah48@hotmail.com
+         git config --global user.email "mohammedabdullah48@hotmail.com"
          git config --global user.name "mhd8a"
          echo "https://${{ secrets.Access_PAT }}@github.com" > remote_url
          git remote set-url origin "$(cat remote_url)"
