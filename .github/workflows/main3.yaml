@@ -9,8 +9,16 @@ on:
 jobs:
   check_and_copy:
     runs-on: ubuntu-latest
-    
     steps:
+      - name: Set up Git with PAT
+        run: |
+         git config --global credential.helper store
+         git config --global user.email "mohammedabdullah48@hotmail.com
+         git config --global user.name "mhd8a"
+         echo "https://${{ secrets.GITHUB_PAT }}@github.com" > remote_url
+         git remote set-url origin "$(cat remote_url)"
+       env:
+         GITHUB_PAT: ${{ secrets.GITHUB_PAT }}
     - name: Set Git identity
       run: |
         git config --global user.email "mohammedabdullah48@hotmail.com"
