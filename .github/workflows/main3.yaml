@@ -10,68 +10,42 @@ jobs:
   check_and_copy:
     runs-on: ubuntu-latest
     steps:
-      - name: Set up Git with PAT
-        run: |
-          git config --global credential.helper store
-          git config --global user.email "mohammedabdullah48@hotmail.com"
-          git config --global user.name "mhd8a"
-          echo "https://${{ secrets.Access_PAT }}@github.com" > remote_url
-          git remote set-url origin "$(cat remote_url)"
-        env:
-          Access_PAT: ${{ secrets.Access_PAT }}
+    - name: Checkout source repo
+      uses: actions/checkout@v2
+      with:
+        repository: mhd8a/git-demo  # Replace with the source repository information
+        ref: main  # Adjust the branch name as needed
 
-      - name: Set Git identity
-        run: |
-          git config --global user.email "mohammedabdullah48@hotmail.com"
-          git config --global user.name "mhd8a"
+    - name: Set up Git with PAT
+      run: |
+        git config --global credential.helper store
+        git config --global user.email "mohammedabdullah48@hotmail.com"
+        git config --global user.name "mhd8a"
+        echo "https://${{ secrets.Access_PAT }}@github.com" > remote_url
+        git remote set-url origin "$(cat remote_url)"
+      env:
+        Access_PAT: ${{ secrets.Access_PAT }}
 
-      - name: Checkout source repo
-        uses: actions/checkout@v2
-        with:
-          repository: mhd8a/git-demo  # Replace with the source repository information
-          ref: main  # Adjust the branch name as needed
+    - name: Set Git identity
+      run: |
+        git config --global user.email "mohammedabdullah48@hotmail.com"
+        git config --global user.name "mhd8a"
 
-      - name: List files in source repo
-        run: |
-          source_file="new_year.cpp"  # Specify the source file path
-          if [ -f "$source_file" ]; then
-            echo "Source file $source_file exists."
-          else
-            echo "Source file $source_file does not exist."
-            exit 1
-          fi
+    - name: List files in source repo
+      run: |
+        source_file="new_year.cpp"  # Specify the source file path
+        if [ -f "$source_file" ]; then
+          echo "Source file $source_file exists."
+        else
+          echo "Source file $source_file does not exist."
+          exit 1
+        fi
 
-      - name: Check and copy to target repos
-        run: |
-          source_file="new_year.cpp"  # Specify the source file path
-          target_repos=("mhd8a/Demo2" "mhd8a/Demo3")  # Add target repositories
+    - name: Check and copy to target repos
+      run: |
+        source_file="new_year.cpp"  # Specify the source file path
+        target_repos=("mhd8a/Demo2" "mhd8a/Demo3")  # Add target repositories
 
-          for repo in "${target_repos[@]}"; do
-            echo "Checking file in $repo"
-            response=$(curl -s -o /dev/null -w "%{http_code}" "https://raw.githubusercontent.com/$repo/main/$source_file")
-
-            if [ "$response" -eq "200" ]; then
-              echo "File $source_file already exists in $repo."
-            else
-              echo "File $source_file does not exist in $repo. Copying..."
-
-              # Read the source file contents
-              file_contents="$(base64 -w0 "$source_file")"
-
-              # Create a new branch in the target repository
-              git clone "https://github.com/$repo.git"
-              cd $(basename $repo)
-              git checkout -b add-file
-
-              # Create the new file with the contents and commit it
-              echo -n "$file_contents" | base64 -d > "$source_file"
-              git add "$source_file"
-              git commit -m "Add $source_file"
-              git push origin add-file
-
-              # Create a pull request
-              gh pr create --base main --head add-file --title "Add $source_file" --body "Add $source_file from source repo"
-              
-              echo "File $source_file copied to $repo."
-            fi
-          done
+        for repo in "${target_repos[@]}"; do
+          echo "Checking file in $repo"
+          response=$(curl -s -o /dev/null -
