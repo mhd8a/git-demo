@@ -1,0 +1,49 @@
+name: Copy File to Target Repositories
+
+on:
+  workflow_dispatch:  # Trigger the workflow manually
+  push:
+    branches:
+      - main  # Adjust the branch name as needed
+
+jobs:
+  check_and_copy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout source repo
+      uses: actions/checkout@v2
+      with:
+        repository: mhd8a/git-demo  # Replace with the source repository information
+        ref: main  # Adjust the branch name as needed
+
+    - name: List files in source repo
+      run: |
+        source_file="new_year.cpp"  # Specify the source file path
+        if [ -f "$source_file" ]; then
+          echo "Source file $source_file exists."
+        else
+          echo "Source file $source_file does not exist."
+          exit 1
+        fi
+
+    - name: Check and copy to target repos
+      run: |
+        source_file="new_year.cpp"  # Specify the source file path
+        target_repos=("mhd8a/Demo3" "mhd8a/Demo3")  # Add target repositories
+
+        for repo in "${target_repos[@]}"; do
+          echo "Checking file in $repo"
+          response=$(curl -s -o /dev/null -w "%{http_code}" "https://raw.githubusercontent.com/$repo/main/$source_file")
+
+          if [ "$response" -eq "200" ]; then
+            echo "File $source_file already exists in $repo."
+          else
+            echo "File $source_file does not exist in $repo. Copying..."
+            
+            # Create a new file in the target repository using the GitHub API
+            curl -X PUT -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -d "{\"message\": \"Copy $source_file\", \"content\": \"$(base64 -w0 $source_file)\", \"branch\": \"main\"}" "https://api.github.com/repos/$repo/contents/$source_file"
+            
+            echo "File $source_file copied to $repo."
+          fi
+        done
