@@ -9,8 +9,12 @@ on:
 jobs:
   check_and_copy:
     runs-on: ubuntu-latest
-
+    
     steps:
+    - name: Set Git identity
+      run: |
+        git config --global user.email "mohammedabdullah48@hotmail.com"
+        git config --global user.name "mhd8a"
     - name: Checkout source repo
       uses: actions/checkout@v2
       with:
