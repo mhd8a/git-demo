@@ -30,7 +30,7 @@ jobs:
     - name: Check and copy to target repos
       run: |
         source_file="new_year.cpp"  # Specify the source file path
-        target_repos=("mhd8a/Demo3" "mhd8a/Demo3")  # Add target repositories
+        target_repos=("mhd8a/Demo2" "mhd8a/Demo3")  # Add target repositories
 
         for repo in "${target_repos[@]}"; do
           echo "Checking file in $repo"
@@ -40,13 +40,23 @@ jobs:
             echo "File $source_file already exists in $repo."
           else
             echo "File $source_file does not exist in $repo. Copying..."
-            
-           # Read the source file contents and construct the API request dynamically
-            file_contents="$(base64 -w0 "$source_file")"
-            json_data="{\"message\": \"Copy $source_file\", \"content\": \"$file_contents\", \"branch\": \"main\"}"
 
-            # Use curl to create a new file in the target repository using the GitHub API
-            curl -X PUT -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -d "$json_data" "https://api.github.com/repos/$repo/contents/$source_file"
+            # Read the source file contents
+            file_contents="$(base64 -w0 "$source_file")"
+
+            # Create a new branch in the target repository
+            git clone "https://github.com/$repo.git"
+            cd $(basename $repo)
+            git checkout -b add-file
+
+            # Create the new file with the contents and commit it
+            echo -n "$file_contents" | base64 -d > "$source_file"
+            git add "$source_file"
+            git commit -m "Add $source_file"
+            git push origin add-file
+
+            # Create a pull request
+            gh pr create --base main --head add-file --title "Add $source_file" --body "Add $source_file from source repo"
             
             echo "File $source_file copied to $repo."
           fi
