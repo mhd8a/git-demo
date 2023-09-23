@@ -11,7 +11,7 @@ jobs:
     - name: Checkout source repo
       uses: actions/checkout@v2
       with:
-        repository: your-source-repo-owner/your-source-repo-name
+        repository: mhd8a/git-demo
         ref: main  # Replace with the branch name as needed
 
     - name: List files in source repo
