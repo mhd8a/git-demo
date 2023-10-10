@@ -1,9 +1,9 @@
-name: workflow for self-hosted testing
+name: "workflow for self-hosted testing"
 on:
   push:
-    branches:*
+    branches:["main]
   pull:
-    types:[opend,reopened]
+    braches:["main"]
   workflow_dispatch:
 jobs:
    build1:
