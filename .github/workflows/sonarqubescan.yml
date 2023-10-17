@@ -10,7 +10,7 @@ name: SonarQube Scan
 jobs:
   sonarqube:
     name: SonarQube Trigger
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
     - name: Checking out
       uses: actions/checkout@master
