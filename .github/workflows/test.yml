@@ -19,10 +19,15 @@ jobs:
                 run: |
                     pwd
                     ls -lah
-              - name : print multipe lines
+              - name: print multipe lines
                 run: | 
                      echo " first line"
                      echo " second line"
+                
+              - name: installing python
+                uses: actions/setup-python@v4
+                with:
+                   python-version: '3.10'
                      
            
   
