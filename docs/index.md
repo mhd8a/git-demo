@@ -1,3 +1,5 @@
+# Welcome to BuildFarm Knowledge Base Page
+
 Contents
 
 1. [FossID-quick-scan-(quick-view)](./FossID-quick-scan-%28quick-view%29.md)
