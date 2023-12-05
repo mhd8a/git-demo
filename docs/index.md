@@ -9,7 +9,7 @@ Contents
 
 3. [Integration-of-SonarQube-to-a-repository](./Integration-of-SonarQube-to-a-repository.md)
 
-4. [Home](./home.md)
+4. [Home](./Home.md)
 
 
 
