@@ -1,4 +1,4 @@
-# <font size="20">Welcome to BuildFarm Knowledge Base</font>
+# <font size="15">Welcome to BuildFarm Knowledge Base</font>
 
 ## <font size="10">Contents</font>
 
