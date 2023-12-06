@@ -1,4 +1,4 @@
-# Welcome to BuildFarm Knowledge Base
+** Welcome to BuildFarm Knowledge Base **
 
 Contents
 
