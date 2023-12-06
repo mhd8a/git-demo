@@ -1,7 +1,6 @@
 # <font size="15">Welcome to BuildFarm Knowledge Base</font>
 
-## <font size="10">Contents</font>
-
+## Contents
 
 > 1. [FossID-quick-scan-(quick-view)](./FossID-quick-scan-%28quick-view%29.md)
 
